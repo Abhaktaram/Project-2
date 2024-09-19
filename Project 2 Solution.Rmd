@@ -1,0 +1,50 @@
+---
+title: "Project 2 Solution"
+author: "Ananya Bhaktaram"
+class: "Statistical Computing"
+date: "September 29th,2024"
+output: html_document
+---
+```{r}
+# Install necessary packages
+install.packages("tidyverse")
+install.packages ("tidytuesdayR")
+
+# Load Respective packages
+library(tidyverse)
+library(tidytuesdayR)
+```
+
+# Part 1: Fun with functions
+
+### Part 1A: Exponential transformation
+
+The exponential of a number can be written as an infinite series expansion of the form $$
+\exp(x) = 1 + x + \frac{x^2}{2!} + \frac{x^3}{3!} + \cdots
+$$ Of course, we cannot compute an infinite series by the end of this term and so we must truncate it at a certain point in the series. The truncated sum of terms represents an approximation to the true exponential, but the approximation may be usable.
+
+Write a function that computes the exponential of a number using the truncated series expansion. The function should take two arguments:
+
+-   `x`: the number to be exponentiated
+
+-   `k`: the number of terms to be used in the series expansion beyond the constant 1. The value of `k` is always $\geq 1$.
+
+For example, if $k = 1$, then the `Exp` function should return the number $1 + x$. If $k = 2$, then you should return the number $1 + x + x^2/2!$.
+
+Include at least one example of output using your function.
+
+::: callout-note
+-   You can assume that the input value `x` will always be a *single* number.
+
+-   You can assume that the value `k` will always be an integer $\geq 1$.
+
+-   Do not use the `exp()` function in R.
+
+-   The `factorial()` function can be used to compute factorials.
+
+```{r}
+Exp <- function(x, k) {
+    # Add your solution here
+}
+```
+
