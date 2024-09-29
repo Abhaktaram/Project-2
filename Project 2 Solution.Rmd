@@ -5,16 +5,6 @@ class: "Statistical Computing"
 date: "September 29th, 2024"
 output: html_document
 ---
-```{r}
-# Install necessary packages
-install.packages("tidyverse")
-install.packages ("tidytuesdayR")
-
-# Load Respective packages
-library(tidyverse)
-library(tidytuesdayR)
-```
-
 # Part 1: Fun with functions
 
 ### Part 1A: Exponential transformation
@@ -369,7 +359,9 @@ For this section,
 
 3.  Include at least one example of output from your function.
 
+::: callout-note
 While developing my function I encountered some issues where all of my plots looked the same, as a result I became concerned that my function wasn't actually filtering data by a single city and a single year. Thus, in addition to making sure that my function was filtering the inputted data by city and year, I built in debugging checks to make sure that the function could be evaluate and the user could see what data was actually being used by ggplot2 to create the histograms. More detailed explanation of each section of the function has been annotated in the code below.
+:::
 
 ```{r}
 # Load necessary libraries
@@ -456,7 +448,20 @@ print(head(rain_df))
 Using the `rain_df`, plots the estimates of mean rainfall and the 95% confidence intervals on the same plot. There should be a separate faceted plot for each city. Think about using `ggplot()` with both `geom_point()` (and `geom_line()` to connect the points) for the means and `geom_errorbar()` for the lower and upper bounds of the confidence interval. Check <https://r-graphics.org/recipe-annotate-error-bar> and or the official documentation <https://ggplot2.tidyverse.org/reference/geom_linerange.html> for examples of how to use `geom_errorbar()`.
 
 ```{r}
-# Add your solution here
+# Load relevant libraries
+library(ggplot2)
+library(dplyr)
+
+# Create plots 
+ggplot(data = rain_df, aes(x = year, y = mean_rainfall)) +
+  geom_point() +  # Points for mean rainfall
+  geom_line() +   # Lines connecting the points
+  geom_errorbar(aes(ymin = lower_bound, ymax = upper_bound), width = 0.2) +  # Error bars
+  facet_wrap(~ city_name) +  # Separate plot for each city
+  labs(title = "Mean Rainfall with 95% Confidence Intervals",
+       x = "Year",
+       y = "Mean Rainfall") +
+  theme_minimal()
 ```
 
 # R session information
