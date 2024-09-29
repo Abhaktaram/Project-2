@@ -432,7 +432,23 @@ In this part, we will apply the functions we wrote in Part 1 to our rainfall dat
 3.  Call this summarized dataset `rain_df`.
 
 ```{r}
-# Add your solution here
+library(dplyr)
+# Step 1 - Filter data to only include data from 2014 onward
+rain_df <- df %>%
+  filter(year >= 2014) %>%  # Filter for years 2014 and onward
+  group_by(city_name, year) %>%  # Group by city and year
+  summarize(
+    mean_rainfall = sample_mean(rainfall),
+    sd_rainfall = sample_sd(rainfall),
+    # Calculate confidence intervals and store in separate columns
+    CI = calculate_CI(rainfall),
+    lower_bound = CI[1],
+    upper_bound = CI[2],
+    .groups = 'drop'  # Ungroup after summarizing
+) 
+
+# View the summarized data set
+print(head(rain_df))
 ```
 
 ### Part 4B: Tasks
