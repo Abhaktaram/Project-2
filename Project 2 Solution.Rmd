@@ -2,7 +2,7 @@
 title: "Project 2 Solution"
 author: "Ananya Bhaktaram"
 class: "Statistical Computing"
-date: "September 29th,2024"
+date: "September 29th, 2024"
 output: html_document
 ---
 ```{r}
@@ -248,7 +248,48 @@ Using the `rainfall` and `temperature` data, perform the following steps and cre
 :::
 
 ```{r}
-# Add your solution here
+# Step 1 - Dropping NAs from rainfall data
+df <- rainfall %>%
+  drop_na()
+
+# Check the data frame to ensure that NAs were dropped
+head(df)
+```
+```{r}
+# Step 2 - Create a new date column
+df <- df %>%
+  mutate(date = ymd(paste(year, month, day, sep = "-"))) %>%
+    select(-month, -day) # This creates a column that just stores the year
+
+
+# Check that changes were made in the data frame
+head(df)
+```
+```{r}
+# Step 3 - Convert the city names (character strings) to all upper case
+
+# Convert city names to upper case 
+df <- df%>%
+  mutate(city_name = toupper(city_name))
+
+# Check data frame for changes
+head(df)
+```
+```{r}
+# Step 3 - Join rainfall data set with the temperature data set
+
+# Load dplyr
+library(dplyr)
+
+# Join rainfall with temperature data
+combined_df <- df %>%
+  inner_join(temperature, by = c("date" = "date", "city_name" = "city_name"))
+
+# Check the data frame to ensure that they are combined
+glimpse(combined_df)
+
+# Check the dimensions of the data set to ensure the data set has 83,964 rows and 13 columns
+dim(combined_df)
 ```
 
 # Part 3: Data visualization
@@ -268,7 +309,27 @@ Use the functions in `ggplot2` package to make a line plot of the max and min te
 2.  Use a facet function to facet by `city_name` to show all cities in one figure.
 
 ```{r}
-# Add your solution here
+# Load ggplot2
+library(ggplot2)
+
+# Filter data to only include data from 2014 onward
+filtered_data <- combined_df %>%
+  filter(year(date) >= 2014)
+
+# Create line plots 
+ggplot(filtered_data, aes(x = year, y = temperature, color = temp_type)) +
+  geom_line() +
+  labs(
+    title = "Temperature Trends (Max and Min) in Major Australian Cities",
+    x = "Year",
+    y = "Temperature (°C)",
+    color = "Temperature Type"
+  ) +
+  facet_wrap(~ city_name, scales = "free_y") +  # Display data by each city
+  theme_minimal() +  # Use a minimal theme
+  scale_color_manual(values = c("max" = "red", "min" = "blue")) +  # Different colors for max and min
+  scale_x_continuous(breaks = seq(2014, max(filtered_data$year), by = 1)) +  # Set breaks for years
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis text for better readability
 ```
 
 ### Part 3B: Plotting rainfall over time
@@ -308,8 +369,56 @@ For this section,
 
 3.  Include at least one example of output from your function.
 
+While developing my function I encountered some issues where all of my plots looked the same, as a result I became concerned that my function wasn't actually filtering data by a single city and a single year. Thus, in addition to making sure that my function was filtering the inputted data by city and year, I built in debugging checks to make sure that the function could be evaluate and the user could see what data was actually being used by ggplot2 to create the histograms. More detailed explanation of each section of the function has been annotated in the code below.
+
 ```{r}
-# Add your solution here
+# Load necessary libraries
+library (ggplot2)
+library (dplyr)
+
+# Define a function that returns a histogram for rainfall in a city over the course of a single year. 
+# Load necessary libraries
+plot_rainfall_histogram <- function(data, city_name, year) {
+  # Print input parameters for debugging
+  print(paste("Filtering for City:", city_name, "Year:", year))
+  
+  # Check the actual values in the columns
+  print(unique(data$city_name))
+  print(unique(data$year))
+
+  # Filter the data for the specified city and year
+  filtered_rainfall_data <- data %>%
+    filter(city_name == !!city_name, year == as.numeric(year))  # Ensure year is numeric
+
+  # Debug: Print the filtered data to confirm it's correct
+  print(paste("Total rows in dataset:", nrow(data)))
+  print(paste("Filtered Data Count:", nrow(filtered_rainfall_data)))
+  print(head(filtered_rainfall_data))  # Show the first few rows of the filtered data
+
+  # Check if any data is available for the specified parameters
+  if (nrow(filtered_rainfall_data) == 0) {
+    stop("The specified city and year combination does not exist in the dataset.")
+  }
+
+  # Create the histogram
+  ggplot(filtered_rainfall_data, aes(log(rainfall))) +
+    geom_histogram(binwidth = 1, fill = "blue", color = "black", na.rm = TRUE) +
+    labs(
+      title = paste("Rainfall Distribution in", city_name, "for the Year", year),
+      x = "Rainfall (Log Scale)",
+      y = "Frequency"
+    ) +
+    theme_minimal() +
+    geom_vline(aes(xintercept = 0), color = "red", linetype = "dashed") +  # Line for drought indicator
+    annotate("text", x = 0, y = max(table(filtered_rainfall_data$rainfall), na.rm = TRUE), label = "Drought Indicator", color = "red", vjust = -1)
+}
+
+# Example of function usage
+plot_rainfall_histogram (df, "PERTH", 2008) # histogram of rainfall in Perth in 2008
+
+plot_rainfall_histogram(df, "SYDNEY", 2019) # histogram of rain in Sydney in 2019
+
+plot_rainfall_histogram(df,"BRISBANE", 1967) # histogram of rainfall in brisbane in 1967
 ```
 
 # Part 4: Apply functions and plot
